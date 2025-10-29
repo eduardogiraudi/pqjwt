@@ -78,7 +78,7 @@ Provides low-level key handling and utility methods.
 
 ```python
 import time
-from jwt_library import create_publisher, create_consumer
+from pqjwt import create_publisher, create_consumer
 
 # Publisher: generates keys if missing, signs JWTs
 publisher = create_publisher(key_dir="./keys", algorithm="ML-DSA-65", key_format="pem")
