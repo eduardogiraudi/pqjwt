@@ -88,11 +88,11 @@ consumer = create_consumer(
 
 try:
     headers, claims = consumer.decode(jwt_token)
-    print("✅ JWT is valid!")
+    print("JWT is valid!")
     print("Headers:", headers)
     print("Claims:", claims)
 except Exception as e:
-    print("❌ Verification failed:", e)
+    print("Verification failed:", e)
 ```
 
 ### Advanced Usage with Custom Headers
