@@ -412,7 +412,7 @@ python tests/test.py
 
 ---
 
-## 📝 File Naming Convention
+## File Naming Convention
 
 Keys are automatically named based on algorithm and format:
 
@@ -442,7 +442,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-## 🆘 Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
@@ -463,7 +463,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-## 📞 Support
+## Support
 
 For bugs and feature requests, please open an issue on GitHub.
 
