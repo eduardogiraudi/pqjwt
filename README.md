@@ -6,7 +6,7 @@ This library encapsulates key management and JWT logic, making it easy to integr
 
 ---
 
-## 🚀 Features
+## Features
 
 - **Post-Quantum Ready:** Implements NIST-standardized ML-DSA, Falcon padded, and SPHINCS+ signature algorithms for quantum-safe JWTs
 - **Multiple Algorithm Support:** Handles multiple security levels and schemes:
