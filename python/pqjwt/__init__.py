@@ -19,8 +19,8 @@ from .errors import (
 )
 
 __version__ = "0.1.0"
-__author__ = "PQC JWT Contributors"
-__email__ = "your-email@example.com"
+__author__ = "Eduardo Giraudi"
+__email__ = "eduardogiraudi000@gmail.com"
 __description__ = "Post-Quantum Cryptography JWT Library"
 
 __all__ = [

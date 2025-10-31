@@ -45,7 +45,7 @@ pip install pqjwt
 
 ### From Source
 ```bash
-git clone https://github.com/your-username/pqjwt.git
+git clone https://github.com/eduardogiraudi/pqjwt.git
 cd pqjwt
 pip install -e .
 ```

@@ -5,7 +5,6 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "pqjwt"
 
-# Questi vengono letti da pqjwt/__init__.py
 dynamic = ["version", "description", "authors"]
 
 readme = "README.md"
@@ -45,9 +44,9 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/your-username/pqjwt"
-Repository = "https://github.com/your-username/pqjwt"
-Issues = "https://github.com/your-username/pqjwt/issues"
+Homepage = "https://github.com/eduardogiraudi/pqjwt"
+Repository = "https://github.com/eduardogiraudi/pqjwt"
+Issues = "https://github.com/eduardogiraudi/pqjwt/issues"
 
 [tool.setuptools]
 include-package-data = true
