@@ -5,25 +5,6 @@ The goal is to enable JWT signing and verification that remain secure in the qua
 
 ---
 
-## Repository Structure
-
-```
-pqjwt-monorepo/
-│
-├── python/       → Python library (PyPI)
-│   └── README.md
-│
-├── js/           → JavaScript library (npm)
-│   └── README.md
-│
-├── tools/        → Common build/test/lint scripts
-│
-├── LICENSE       → MIT License for the entire project
-└── README.md     → This file
-```
-
----
-
 ## Libraries
 
 ### [Python Library (`pqjwt`)](./python/README.md)
