@@ -19,7 +19,7 @@ Supports:
 
 ---
 
-### [JavaScript Library (`pqjwt-js`)](./js/README.md)
+### [JavaScript Library (`pqjwt`)](./js/README.md)
 
 JavaScript implementation for **Node.js** and browsers, designed to interoperate with the Python version.
 Currently, it supports **ML-DSA (Dilithium)** and **SLH‑DSA (SPHINCS+)** algorithms.
