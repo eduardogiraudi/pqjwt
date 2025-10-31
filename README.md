@@ -40,10 +40,12 @@ Supports:
 
 ### [JavaScript Library (`pqjwt-js`)](./js/README.md)
 
-JavaScript implementation for **Node.js** and browsers, designed to interoperate with the Python version.  
-It allows JWT creation and verification using the same post-quantum signature algorithms and key formats.
+JavaScript implementation for **Node.js** and browsers, designed to interoperate with the Python version.
+Currently, it supports **ML-DSA (Dilithium)** and **SLH‑DSA (SPHINCS+)** algorithms.
 
-> 📖 See the [full JavaScript documentation](./js/README.md)
+> **Note:** The Python version also supports **Falcon-512** and **Falcon-1024**, but these are **not yet available** in the JavaScript version. Adding Falcon support is a **priority** to ensure full interoperability between the two versions.
+
+> See the [full JavaScript documentation](./js/README.md)
 
 ---
 

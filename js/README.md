@@ -8,19 +8,19 @@ This library provides quantum-resistant JWT authentication with a simple, intuit
 
 ## Features
 
-* **🛡️ Post-Quantum Ready**: Implements NIST-standardized ML-DSA (Dilithium) and SPHINCS+ (SLH‑DSA) signature algorithms for quantum-safe JWTs.
-* **🔐 Multiple Security Levels**: Supports ML-DSA-44/65/87 and 12 SPHINCS+ variants for different security/performance trade-offs.
-* **📁 Flexible Key Storage**: Save/load key pairs in multiple formats:
+* **Post-Quantum Ready**: Implements NIST-standardized ML-DSA (Dilithium) and SPHINCS+ (SLH‑DSA) signature algorithms for quantum-safe JWTs.
+* **Multiple Security Levels**: Supports ML-DSA-44/65/87 and 12 SPHINCS+ variants for different security/performance trade-offs.
+* **Flexible Key Storage**: Save/load key pairs in multiple formats:
 
   * `pem`: Base64 with PEM headers (raw bytes, not PKCS#8/SPKI)
   * `bin`: Raw binary key bytes
-* **👥 Publisher/Consumer Roles**:
+* **Publisher/Consumer Roles**:
 
   * **Publisher**: Generates keys and signs JWTs
   * **Consumer**: Loads public keys and verifies JWTs
-* **⏰ Standard JWT Claims**: Automatic validation of `exp`, `nbf`, and `iat` claims
-* **🚨 Comprehensive Error Handling**: Detailed exceptions for all error scenarios
-* **🌐 Universal Compatibility**: Works with Node.js, browsers, and other JavaScript environments
+* **Standard JWT Claims**: Automatic validation of `exp`, `nbf`, and `iat` claims
+* **Comprehensive Error Handling**: Detailed exceptions for all error scenarios
+* **Universal Compatibility**: Works with Node.js, browsers, and other JavaScript environments
 
 ---
 
@@ -83,11 +83,11 @@ const consumer = createConsumer('./keys', 'pem', 'ML-DSA-65');
 
 try {
   const { headers, payload: claims } = consumer.decode(jwtToken);
-  console.log('✅ JWT is valid!');
+  console.log('JWT is valid!');
   console.log('Headers:', headers);
   console.log('Claims:', claims);
 } catch (error) {
-  console.log('❌ Verification failed:', error.message);
+  console.log('Verification failed:', error.message);
 }
 ```
 
