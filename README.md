@@ -468,4 +468,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 For bugs and feature requests, please open an issue on GitHub.
 
 For security vulnerabilities, please contact the maintainers directly.
-```
