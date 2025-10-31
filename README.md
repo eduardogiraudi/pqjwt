@@ -371,6 +371,11 @@ except AlgorithmNotSupportedError as e:
 
 ## Security Considerations
 
+### Algorithm Security
+- **ML-DSA**: NIST Standardized (FIPS 204), no known practical attacks
+- **Falcon Padded**: Mitigates timing attacks present in basic Falcon variants  
+- **SPHINCS+**: Conservative hash-based security, very large signatures but resistant to lattice attacks
+
 ### Key Format Disclaimer
 **Important Note on PEM Format**: Current PEM implementation uses generic headers (`BEGIN PUBLIC KEY`/`BEGIN PRIVATE KEY`) with base64-encoded raw key bytes. Full PKCS#8 (private keys) and SPKI (public keys) ASN.1 encoding is **not yet implemented**. This means:
 - Generated PEM files are **not standards-compliant** with OpenSSL and other PKI tools
@@ -378,11 +383,6 @@ except AlgorithmNotSupportedError as e:
 - **Interoperability with external systems is limited**
 
 Full ASN.1 wrapping with proper OIDs and structure is planned for future releases. For now, use this library in self-contained systems or be prepared to handle key conversion for interoperability.
-
-### Algorithm Security
-- **ML-DSA**: NIST Standardized (FIPS 204), no known practical attacks
-- **Falcon Padded**: Mitigates timing attacks present in basic Falcon variants  
-- **SPHINCS+**: Conservative hash-based security, very large signatures but resistant to lattice attacks
 
 ### Key Protection
 - Store private keys securely with appropriate file permissions
