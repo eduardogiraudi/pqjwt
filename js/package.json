@@ -1,0 +1,44 @@
+{
+  "name": "post-quantum-jwt",
+  "version": "1.0.0",
+  "description": "Post-quantum JWT implementation using ML-DSA and SPHINCS+ algorithms",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test.js",
+    "start": "node example.js",
+    "build": "echo 'No build step required for pure JavaScript implementation'",
+    "benchmark": "node benchmark.js"
+  },
+  "keywords": [
+    "jwt",
+    "post-quantum",
+    "cryptography",
+    "ml-dsa",
+    "dilithium",
+    "sphincs+",
+    "post-quantum-crypto",
+    "authentication",
+    "security"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/post-quantum-jwt.git"
+  },
+  "dependencies": {
+    "@noble/post-quantum": "^0.2.0"
+  },
+  "devDependencies": {
+    "node": "^20.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "browser": {
+    "fs": false,
+    "path": false,
+    "crypto": false
+  }
+}
