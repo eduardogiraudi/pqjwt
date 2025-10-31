@@ -1,13 +1,13 @@
 import { describe, it, before, after } from 'node:test';
 import { strict as assert } from 'node:assert';
-import { JWTManager } from '../../src/jwt-manager.js';
+import { JWTManager } from '../../src/jwt-manager.js'; // Path corretto
 import { 
     AlgorithmNotSupportedError, 
     JWTValidationError,
     JWTExpiredError,
     JWTSignatureError,
     JWTDecodeError
-} from '../../src/errors.js';
+} from '../../src/errors.js'; // Path corretto
 import { rm } from 'fs/promises';
 
 describe('JWTManager', () => {

@@ -10,14 +10,14 @@
     "./utils": "./src/utils.js"
   },
   "scripts": {
-    "test": "node --test tests/",
-    "test:unit": "node --test tests/unit/",
-    "test:integration": "node --test tests/integration/",
-    "test:coverage": "c8 node --test tests/",
+    "test": "node --test tests/**/*.test.js",
+    "test:unit": "node --test tests/unit/**/*.test.js",
+    "test:integration": "node --test tests/integration/**/*.test.js",
+    "test:coverage": "c8 node --test tests/**/*.test.js",
     "lint": "eslint src/ tests/ examples/",
     "lint:fix": "eslint src/ tests/ examples/ --fix",
     "examples": "node examples/basic-usage.js",
-    "dev": "node --watch samp.js"
+    "dev": "node --watch examples/basic-usage.js"
   },
   "keywords": [
     "jwt",

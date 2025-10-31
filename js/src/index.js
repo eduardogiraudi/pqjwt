@@ -7,7 +7,8 @@
  * @module pqjwt
  */
 
-export { JWTManager, JWTKeyManager, createPublisher, createConsumer } from './jwt-manager.js';
+import { JWTManager, createPublisher, createConsumer } from './jwt-manager.js';
+export { JWTManager, createPublisher, createConsumer };
 export { 
     AlgorithmNotSupportedError,
     KeyFormatError, 
