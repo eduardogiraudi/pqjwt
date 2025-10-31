@@ -1,6 +1,12 @@
 import { ml_dsa44, ml_dsa65, ml_dsa87 } from '@noble/post-quantum/ml-dsa.js';
-import { slh_dsa_sha2_128f, slh_dsa_sha2_128s, slh_dsa_sha2_192f, slh_dsa_sha2_192s, slh_dsa_sha2_256f, slh_dsa_sha2_256s, slh_dsa_shake_128f, slh_dsa_shake_128s, slh_dsa_shake_192f, slh_dsa_shake_192s, slh_dsa_shake_256f, slh_dsa_shake_256s } from '@noble/post-quantum/slh-dsa.js';
-import { randomBytes } from '@noble/post-quantum/utils.js';
+import { writeFileSync, readFileSync, existsSync, mkdirSync } from 'fs';
+import { 
+    AlgorithmNotSupportedError,
+    JWTValidationError,
+    JWTExpiredError,
+    JWTSignatureError,
+    JWTDecodeError
+} from './errors.js';
 
 class JWTKeyManager {
     static ALGORITHMS = {
@@ -15,58 +21,8 @@ class JWTKeyManager {
         "ML-DSA-87": {
             instance: ml_dsa87,
             jwt_header: "Dilithium5"
-        },
-        "SPHINCS+-SHA2-128f": {
-            instance: slh_dsa_sha2_128f,
-            jwt_header: "SphincsSha2128f"
-        },
-        "SPHINCS+-SHA2-128s": {
-            instance: slh_dsa_sha2_128s,
-            jwt_header: "SphincsSha2128s"
-        },
-        "SPHINCS+-SHA2-192f": {
-            instance: slh_dsa_sha2_192f,
-            jwt_header: "SphincsSha2192f"
-        },
-        "SPHINCS+-SHA2-192s": {
-            instance: slh_dsa_sha2_192s,
-            jwt_header: "SphincsSha2192s"
-        },
-        "SPHINCS+-SHA2-256f": {
-            instance: slh_dsa_sha2_256f,
-            jwt_header: "SphincsSha2256f"
-        },
-        "SPHINCS+-SHA2-256s": {
-            instance: slh_dsa_sha2_256s,
-            jwt_header: "SphincsSha2256s"
-        },
-        "SPHINCS+-SHAKE-128f": {
-            instance: slh_dsa_shake_128f,
-            jwt_header: "SphincsShake128f"
-        },
-        "SPHINCS+-SHAKE-128s": {
-            instance: slh_dsa_shake_128s,
-            jwt_header: "SphincsShake128s"
-        },
-        "SPHINCS+-SHAKE-192f": {
-            instance: slh_dsa_shake_192f,
-            jwt_header: "SphincsShake192f"
-        },
-        "SPHINCS+-SHAKE-192s": {
-            instance: slh_dsa_shake_192s,
-            jwt_header: "SphincsShake192s"
-        },
-        "SPHINCS+-SHAKE-256f": {
-            instance: slh_dsa_shake_256f,
-            jwt_header: "SphincsShake256f"
-        },
-        "SPHINCS+-SHAKE-256s": {
-            instance: slh_dsa_shake_256s,
-            jwt_header: "SphincsShake256s"
         }
     };
-
-    static SUPPORTED_FORMATS = ["pem", "pub", "bin"];
 
     static getSupportedAlgorithms() {
         return Object.keys(this.ALGORITHMS);
@@ -74,7 +30,7 @@ class JWTKeyManager {
 
     static getJwtHeaderName(algorithm) {
         if (!this.ALGORITHMS[algorithm]) {
-            throw new Error(`Algorithm ${algorithm} not supported`);
+            throw new AlgorithmNotSupportedError(algorithm, this.getSupportedAlgorithms());
         }
         return this.ALGORITHMS[algorithm].jwt_header;
     }
@@ -85,57 +41,49 @@ class JWTKeyManager {
                 return alg;
             }
         }
-        throw new Error(`JWT header ${jwtHeader} not supported`);
+        throw new AlgorithmNotSupportedError(jwtHeader, this.getSupportedAlgorithms());
     }
 
-    static async generateKeyPair(algorithm, seed = null) {
-        if (!this.ALGORITHMS[algorithm]) {
-            throw new Error(`Algorithm ${algorithm} not supported`);
+    static saveKey(key, filePath, formatType = "pem", keyType = "public") {
+        if (formatType === "pem") {
+            const pemHeader = keyType === "private" ? 
+                "-----BEGIN PRIVATE KEY-----" : "-----BEGIN PUBLIC KEY-----";
+            const pemFooter = keyType === "private" ? 
+                "-----END PRIVATE KEY-----" : "-----END PUBLIC KEY-----";
+            
+            const keyB64 = Buffer.from(key).toString('base64');
+            const pemContent = `${pemHeader}\n${keyB64}\n${pemFooter}`;
+            writeFileSync(filePath, pemContent);
+        } else if (formatType === "bin") {
+            writeFileSync(filePath, key);
+        } else {
+            throw new Error(`Unsupported format: ${formatType}`);
         }
-        
-        const algInstance = this.ALGORITHMS[algorithm].instance;
-        if (seed) {
-            return algInstance.keygen(seed);
-        }
-        return algInstance.keygen();
     }
 
-    static async sign(message, secretKey, algorithm) {
-        if (!this.ALGORITHMS[algorithm]) {
-            throw new Error(`Algorithm ${algorithm} not supported`);
+    static loadKey(filePath, formatType = "auto", keyType = "public") {
+        if (formatType === "auto") {
+            formatType = filePath.endsWith('.pem') ? "pem" : "bin";
         }
-        
-        const algInstance = this.ALGORITHMS[algorithm].instance;
-        return algInstance.sign(message, secretKey);
-    }
 
-    static async verify(signature, message, publicKey, algorithm) {
-        if (!this.ALGORITHMS[algorithm]) {
-            throw new Error(`Algorithm ${algorithm} not supported`);
+        if (formatType === "pem") {
+            const content = readFileSync(filePath, 'utf8');
+            const lines = content.trim().split('\n');
+            
+            if (lines.length < 3) {
+                throw new Error("Invalid PEM format");
+            }
+
+            const base64Data = lines.slice(1, -1).join('');
+            return Buffer.from(base64Data, 'base64');
+        } else {
+            return readFileSync(filePath);
         }
-        
-        const algInstance = this.ALGORITHMS[algorithm].instance;
-        return algInstance.verify(signature, message, publicKey);
-    }
-
-    static base64urlEncode(data) {
-        return btoa(String.fromCharCode(...new Uint8Array(data)))
-            .replace(/\+/g, '-')
-            .replace(/\//g, '_')
-            .replace(/=/g, '');
-    }
-
-    static base64urlDecode(data) {
-        data = data.replace(/-/g, '+').replace(/_/g, '/');
-        while (data.length % 4) {
-            data += '=';
-        }
-        return new Uint8Array([...atob(data)].map(c => c.charCodeAt(0)));
     }
 }
 
 class JWTManager {
-    constructor(mode = "publisher", keyDir = "./keys", keyFormat = "pem", algorithm = "ML-DSA-65") {
+    constructor(mode = "publisher", keyDir = "./keys", keyFormat = "pem", algorithm = "ML-DSA-44") {
         this.mode = mode;
         this.keyDir = keyDir;
         this.keyFormat = keyFormat;
@@ -144,176 +92,193 @@ class JWTManager {
         this.secretKey = null;
 
         if (!JWTKeyManager.ALGORITHMS[algorithm]) {
-            throw new Error(`Algorithm ${algorithm} not supported`);
+            throw new AlgorithmNotSupportedError(algorithm, JWTKeyManager.getSupportedAlgorithms());
         }
+
+        this.algorithmInstance = JWTKeyManager.ALGORITHMS[algorithm].instance;
+
+        if (!existsSync(keyDir)) {
+            mkdirSync(keyDir, { recursive: true });
+        }
+
+        this._loadOrGenerateKeys();
     }
 
-    async initialize() {
-        // In browser environment, we can't write to filesystem
-        // So we'll use localStorage or keep keys in memory
-        await this._loadOrGenerateKeys();
+    _getKeyPaths() {
+        const baseName = this.algorithm.toLowerCase().replace('-', '_');
+        const publicKeyPath = `${this.keyDir}/${baseName}_public.${this.keyFormat}`;
+        const secretKeyPath = this.mode === "publisher" ? 
+            `${this.keyDir}/${baseName}_private.${this.keyFormat}` : null;
+
+        return { publicKeyPath, secretKeyPath };
     }
 
-    async _loadOrGenerateKeys() {
-        const storageKey = `jwt_keys_${this.algorithm}`;
-        
+    _loadOrGenerateKeys() {
+        const { publicKeyPath, secretKeyPath } = this._getKeyPaths();
+
         if (this.mode === "publisher") {
-            const stored = localStorage.getItem(storageKey);
-            if (stored) {
-                const keys = JSON.parse(stored);
-                this.publicKey = this._stringToUint8Array(keys.publicKey);
-                this.secretKey = this._stringToUint8Array(keys.secretKey);
-                console.log(`Keys for ${this.algorithm} loaded from storage`);
+            if (existsSync(publicKeyPath) && existsSync(secretKeyPath)) {
+                this.publicKey = JWTKeyManager.loadKey(publicKeyPath, this.keyFormat, "public");
+                this.secretKey = JWTKeyManager.loadKey(secretKeyPath, this.keyFormat, "private");
+                console.log(`✓ Keys for ${this.algorithm} loaded from ${this.keyDir}`);
             } else {
-                // Generate new keys
-                const keys = await JWTKeyManager.generateKeyPair(this.algorithm);
-                this.publicKey = keys.publicKey;
-                this.secretKey = keys.secretKey;
+                // Generate new keys using noble
+                const keyPair = this.algorithmInstance.keygen();
                 
-                // Store in localStorage
-                localStorage.setItem(storageKey, JSON.stringify({
-                    publicKey: this._uint8ArrayToString(this.publicKey),
-                    secretKey: this._uint8ArrayToString(this.secretKey)
-                }));
-                console.log(`Keys for ${this.algorithm} generated and stored`);
+                // Convert Uint8Array to Buffer
+                this.publicKey = Buffer.from(keyPair.publicKey);
+                this.secretKey = Buffer.from(keyPair.secretKey);
+
+                JWTKeyManager.saveKey(this.publicKey, publicKeyPath, this.keyFormat, "public");
+                JWTKeyManager.saveKey(this.secretKey, secretKeyPath, this.keyFormat, "private");
+                
+                console.log(`✓ New keys for ${this.algorithm} generated and saved in ${this.keyDir}`);
             }
-        } else if (this.mode === "consumer") {
-            const stored = localStorage.getItem(storageKey);
-            if (stored) {
-                const keys = JSON.parse(stored);
-                this.publicKey = this._stringToUint8Array(keys.publicKey);
-                console.log(`Public key for ${this.algorithm} loaded from storage`);
+        } else {
+            if (existsSync(publicKeyPath)) {
+                this.publicKey = JWTKeyManager.loadKey(publicKeyPath, this.keyFormat, "public");
+                console.log(`✓ Public key for ${this.algorithm} loaded from ${publicKeyPath}`);
             } else {
-                throw new Error(`Public key for ${this.algorithm} not found in storage`);
+                throw new Error(`✗ Public key not found at ${publicKeyPath}`);
             }
         }
     }
 
-    async encode(payload, headers = null) {
+    _base64urlEncode(data) {
+        return Buffer.from(data).toString('base64url');
+    }
+
+    _base64urlDecode(data) {
+        return Buffer.from(data, 'base64url');
+    }
+
+    encode(payload, headers = null) {
         if (this.mode !== "publisher") {
-            throw new Error("Only publishers can sign a JWT");
-        }
-        if (!this.secretKey) {
-            throw new Error("Private key not available for signing");
+            throw new Error("Only publishers can sign JWT");
         }
 
         const jwtHeaderName = JWTKeyManager.getJwtHeaderName(this.algorithm);
         const defaultHeaders = {
-            alg: jwtHeaderName,
-            typ: "JWT"
+            "alg": jwtHeaderName,
+            "typ": "JWT"
         };
 
-        const mergedHeaders = headers ? { ...defaultHeaders, ...headers } : defaultHeaders;
+        const finalHeaders = headers ? { ...defaultHeaders, ...headers } : defaultHeaders;
 
-        const headerEncoded = JWTKeyManager.base64urlEncode(
-            new TextEncoder().encode(JSON.stringify(mergedHeaders))
-        );
+        const headerEncoded = this._base64urlEncode(JSON.stringify(finalHeaders));
+        const payloadEncoded = this._base64urlEncode(JSON.stringify(payload));
+        const messageToSign = `${headerEncoded}.${payloadEncoded}`;
+
+        // Sign with noble - convert Buffer to Uint8Array for noble
+        const messageUint8 = new Uint8Array(Buffer.from(messageToSign));
+        const secretKeyUint8 = new Uint8Array(this.secretKey);
+        const signature = this.algorithmInstance.sign(messageUint8, secretKeyUint8);
         
-        const payloadEncoded = JWTKeyManager.base64urlEncode(
-            new TextEncoder().encode(JSON.stringify(payload))
-        );
-        
-        const messageToSign = new TextEncoder().encode(`${headerEncoded}.${payloadEncoded}`);
-        
-        const signature = await JWTKeyManager.sign(messageToSign, this.secretKey, this.algorithm);
-        const signatureEncoded = JWTKeyManager.base64urlEncode(signature);
+        const signatureEncoded = this._base64urlEncode(signature);
 
         return `${headerEncoded}.${payloadEncoded}.${signatureEncoded}`;
     }
 
-    async decode(jwt, validateClaims = true, clockSkew = 5) {
-        try {
-            const parts = jwt.split('.');
-            if (parts.length !== 3) {
-                throw new Error("Malformed JWT: wrong number of parts");
-            }
+    decode(jwt, validateClaims = true) {
+        const parts = jwt.split('.');
+        if (parts.length !== 3) {
+            throw new JWTValidationError("Invalid JWT format: wrong number of parts");
+        }
 
-            const [headerEncoded, payloadEncoded, signatureEncoded] = parts;
-            
-            const headerJson = new TextDecoder().decode(JWTKeyManager.base64urlDecode(headerEncoded));
-            const payloadJson = new TextDecoder().decode(JWTKeyManager.base64urlDecode(payloadEncoded));
-            
+        const [headerEncoded, payloadEncoded, signatureEncoded] = parts;
+
+        try {
+            const headerJson = this._base64urlDecode(headerEncoded).toString();
+            const payloadJson = this._base64urlDecode(payloadEncoded).toString();
+            const signature = this._base64urlDecode(signatureEncoded);
+
             const headers = JSON.parse(headerJson);
             const payload = JSON.parse(payloadJson);
-            
-            const signature = JWTKeyManager.base64urlDecode(signatureEncoded);
 
+            // Validate claims if requested
             if (validateClaims) {
                 const now = Math.floor(Date.now() / 1000);
-                
-                if (payload.exp && now >= payload.exp) {
-                    throw new Error("JWT expired");
+
+                if (payload.exp) {
+                    if (now >= payload.exp) {
+                        throw new JWTExpiredError(payload.exp, now);
+                    }
                 }
-                
-                if (payload.nbf && now + clockSkew < payload.nbf) {
-                    throw new Error("JWT not yet valid");
-                }
-                
-                if (payload.iat && payload.iat > now) {
-                    throw new Error("JWT issued in future");
+
+                if (payload.nbf && now < payload.nbf) {
+                    throw new JWTValidationError(`JWT not yet valid. Current time: ${now}, Not before: ${payload.nbf}`);
                 }
             }
 
+            // Get algorithm from JWT header
             const jwtAlg = headers.alg;
             const expectedAlgorithm = JWTKeyManager.getAlgorithmFromJwtHeader(jwtAlg);
-            
-            if (expectedAlgorithm !== this.algorithm) {
-                console.warn(`JWT algorithm (${expectedAlgorithm}) differs from manager's (${this.algorithm})`);
-            }
 
-            const messageToVerify = new TextEncoder().encode(`${headerEncoded}.${payloadEncoded}`);
-            const isValid = await JWTKeyManager.verify(signature, messageToVerify, this.publicKey, expectedAlgorithm);
+            // Verify signature using noble
+            const messageToVerify = `${headerEncoded}.${payloadEncoded}`;
+            const messageUint8 = new Uint8Array(Buffer.from(messageToVerify));
+            const publicKeyUint8 = new Uint8Array(this.publicKey);
+            const signatureUint8 = new Uint8Array(signature);
+            
+            const isValid = this.algorithmInstance.verify(signatureUint8, messageUint8, publicKeyUint8);
 
             if (!isValid) {
-                throw new Error("Invalid signature");
+                throw new JWTSignatureError(expectedAlgorithm);
             }
 
             return { headers, payload };
-            
+
         } catch (error) {
-            throw new Error(`JWT validation failed: ${error.message}`);
+            // Gestione specifica degli errori di parsing JSON
+            if (error instanceof SyntaxError && error.message.includes('JSON')) {
+                throw new JWTDecodeError(`Invalid JSON in JWT: ${error.message}`);
+            }
+            
+            if (error instanceof JWTValidationError || 
+                error instanceof JWTExpiredError || 
+                error instanceof JWTSignatureError ||
+                error instanceof JWTDecodeError) {
+                throw error;
+            }
+            
+            throw new JWTDecodeError(error.message);
         }
     }
 
-    async verify(jwt) {
+    verify(jwt) {
         try {
-            await this.decode(jwt, false);
+            this.decode(jwt, false);
             return true;
         } catch {
             return false;
-    }
-
-    getPublicKey(outputFormat = "string") {
-        if (outputFormat === "string") {
-            return this._uint8ArrayToString(this.publicKey);
-        } else if (outputFormat === "hex") {
-            return Array.from(this.publicKey).map(b => b.toString(16).padStart(2, '0')).join('');
-        } else {
-            throw new Error(`Unsupported output format: ${outputFormat}`);
         }
     }
 
-    _uint8ArrayToString(uint8Array) {
-        return Array.from(uint8Array).map(b => String.fromCharCode(b)).join('');
+    getPublicKeyPem() {
+        const pemHeader = "-----BEGIN PUBLIC KEY-----";
+        const pemFooter = "-----END PUBLIC KEY-----";
+        const keyB64 = this.publicKey.toString('base64');
+        return `${pemHeader}\n${keyB64}\n${pemFooter}`;
     }
 
-    _stringToUint8Array(string) {
-        return new Uint8Array([...string].map(c => c.charCodeAt(0)));
+    getSecretKeyPem() {
+        if (this.mode !== "publisher") {
+            throw new Error("Only publishers can access secret key");
+        }
+        const pemHeader = "-----BEGIN PRIVATE KEY-----";
+        const pemFooter = "-----END PRIVATE KEY-----";
+        const keyB64 = this.secretKey.toString('base64');
+        return `${pemHeader}\n${keyB64}\n${pemFooter}`;
     }
 }
 
 // Factory functions
-async function createPublisher(keyDir = "./keys", keyFormat = "pem", algorithm = "ML-DSA-65") {
-    const manager = new JWTManager("publisher", keyDir, keyFormat, algorithm);
-    await manager.initialize();
-    return manager;
+export function createPublisher(keyDir = "./keys", keyFormat = "pem", algorithm = "ML-DSA-65") {
+    return new JWTManager("publisher", keyDir, keyFormat, algorithm);
 }
 
-async function createConsumer(keyDir = "./keys", keyFormat = "pem", algorithm = "ML-DSA-65") {
-    const manager = new JWTManager("consumer", keyDir, keyFormat, algorithm);
-    await manager.initialize();
-    return manager;
+export function createConsumer(keyDir = "./keys", keyFormat = "pem", algorithm = "ML-DSA-65") {
+    return new JWTManager("consumer", keyDir, keyFormat, algorithm);
 }
 
-// Export for use in modules
-export { JWTKeyManager, JWTManager, createPublisher, createConsumer };
+export { JWTManager, JWTKeyManager };

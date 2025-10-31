@@ -1,44 +1,58 @@
 {
-  "name": "post-quantum-jwt",
+  "name": "pqjwt",
   "version": "1.0.0",
-  "description": "Post-quantum JWT implementation using ML-DSA and SPHINCS+ algorithms",
+  "description": "Post-Quantum JWT implementation",
   "type": "module",
-  "main": "index.js",
+  "main": "src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./errors": "./src/errors.js",
+    "./utils": "./src/utils.js"
+  },
   "scripts": {
-    "test": "node test.js",
-    "start": "node example.js",
-    "build": "echo 'No build step required for pure JavaScript implementation'",
-    "benchmark": "node benchmark.js"
+    "test": "node --test tests/",
+    "test:unit": "node --test tests/unit/",
+    "test:integration": "node --test tests/integration/",
+    "test:coverage": "c8 node --test tests/",
+    "lint": "eslint src/ tests/ examples/",
+    "lint:fix": "eslint src/ tests/ examples/ --fix",
+    "examples": "node examples/basic-usage.js",
+    "dev": "node --watch samp.js"
   },
   "keywords": [
     "jwt",
     "post-quantum",
-    "cryptography",
+    "crypto",
     "ml-dsa",
     "dilithium",
-    "sphincs+",
-    "post-quantum-crypto",
+    "falcon",
+    "sphincs",
     "authentication",
     "security"
   ],
-  "author": "Your Name",
+  "author": "Eduardo Giraudi <eduardogiraudi000@gmail.com>",
   "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/your-username/post-quantum-jwt.git"
-  },
   "dependencies": {
-    "@noble/post-quantum": "^0.2.0"
+    "@noble/post-quantum": "^0.5.2"
   },
   "devDependencies": {
-    "node": "^20.0.0"
+    "eslint": "^9.0.0",
+    "c8": "^9.0.0"
   },
   "engines": {
     "node": ">=18.0.0"
   },
-  "browser": {
-    "fs": false,
-    "path": false,
-    "crypto": false
-  }
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/eduardogiraudi/pqjwt"
+  },
+  "bugs": {
+    "url": "https://github.com/eduardogiraudi/pqjwt/issues"
+  },
+  "homepage": "https://github.com/eduardogiraudi/pqjwt#readme",
+  "files": [
+    "src/",
+    "LICENSE",
+    "README.md"
+  ]
 }
