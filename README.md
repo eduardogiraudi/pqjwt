@@ -47,23 +47,6 @@ It allows JWT creation and verification using the same post-quantum signature al
 
 ---
 
-## Build & Test
-
-Run tests for all libraries:
-
-```bash
-./tools/test_all.sh
-```
-
-Build both libraries:
-
-```bash
-./tools/build_all.sh
-```
-
-(Sample scripts provided under `tools/`.)
-
----
 
 ## Project Goal
 

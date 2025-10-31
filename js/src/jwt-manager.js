@@ -7,21 +7,84 @@ import {
     JWTSignatureError,
     JWTDecodeError
 } from './errors.js';
-
+import {
+  slh_dsa_sha2_128f,
+  slh_dsa_sha2_128s,
+  slh_dsa_sha2_192f,
+  slh_dsa_sha2_192s,
+  slh_dsa_sha2_256f,
+  slh_dsa_sha2_256s,
+  slh_dsa_shake_128f,
+  slh_dsa_shake_128s,
+  slh_dsa_shake_192f,
+  slh_dsa_shake_192s,
+  slh_dsa_shake_256f,
+  slh_dsa_shake_256s
+} from '@noble/post-quantum/slh-dsa.js';
 class JWTKeyManager {
     static ALGORITHMS = {
         "ML-DSA-44": {
-            instance: ml_dsa44,
-            jwt_header: "Dilithium2"
-        },
-        "ML-DSA-65": {
-            instance: ml_dsa65,
-            jwt_header: "Dilithium3"
-        },
-        "ML-DSA-87": {
-            instance: ml_dsa87,
-            jwt_header: "Dilithium5"
-        }
+      instance: ml_dsa44,
+      jwt_header: "Dilithium2"
+    },
+    "ML-DSA-65": {
+      instance: ml_dsa65,
+      jwt_header: "Dilithium3"
+    },
+    "ML-DSA-87": {
+      instance: ml_dsa87,
+      jwt_header: "Dilithium5"
+    },
+    // SLH‑DSA / SPHINCS+ variants:
+    "SPHINCS+-SHA2-128f": {
+      instance: slh_dsa_sha2_128f,
+      jwt_header: "SphincsSha2128f"
+    },
+    "SPHINCS+-SHA2-128s": {
+      instance: slh_dsa_sha2_128s,
+      jwt_header: "SphincsSha2128s"
+    },
+    "SPHINCS+-SHA2-192f": {
+      instance: slh_dsa_sha2_192f,
+      jwt_header: "SphincsSha2192f"
+    },
+    "SPHINCS+-SHA2-192s": {
+      instance: slh_dsa_sha2_192s,
+      jwt_header: "SphincsSha2192s"
+    },
+    "SPHINCS+-SHA2-256f": {
+      instance: slh_dsa_sha2_256f,
+      jwt_header: "SphincsSha2256f"
+    },
+    "SPHINCS+-SHA2-256s": {
+      instance: slh_dsa_sha2_256s,
+      jwt_header: "SphincsSha2256s"
+    },
+    "SPHINCS+-SHAKE-128f": {
+      instance: slh_dsa_shake_128f,
+      jwt_header: "SphincsShake128f"
+    },
+    "SPHINCS+-SHAKE-128s": {
+      instance: slh_dsa_shake_128s,
+      jwt_header: "SphincsShake128s"
+    },
+    "SPHINCS+-SHAKE-192f": {
+      instance: slh_dsa_shake_192f,
+      jwt_header: "SphincsShake192f"
+    },
+    "SPHINCS+-SHAKE-192s": {
+      instance: slh_dsa_shake_192s,
+      jwt_header: "SphincsShake192s"
+    },
+    "SPHINCS+-SHAKE-256f": {
+      instance: slh_dsa_shake_256f,
+      jwt_header: "SphincsShake256f"
+    },
+    "SPHINCS+-SHAKE-256s": {
+      instance: slh_dsa_shake_256s,
+      jwt_header: "SphincsShake256s"
+    }
+
     };
 
     static getSupportedAlgorithms() {
