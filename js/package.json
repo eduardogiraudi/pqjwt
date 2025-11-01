@@ -1,6 +1,6 @@
 {
   "name": "pqjwt",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Post-Quantum JWT implementation",
   "type": "module",
   "main": "src/index.js",
