@@ -7,7 +7,7 @@ The goal is to enable JWT signing and verification that remain secure in the qua
 
 ## Libraries
 
-### [Python Library (`pqjwt`)](./python/README.md)
+### [Python Library (`pqjwt`)](./python/pqjwt/README.md)
 
 Python implementation providing key management, JWT creation, signing, and verification with complete claim validation.  
 Supports:
@@ -15,7 +15,7 @@ Supports:
 - Falcon (padded)
 - SPHINCS+ (SHA2 / SHAKE variants)
 
-> See the [full Python documentation](./python/README.md)
+> See the [full Python documentation](./python/pqjwt/README.md)
 
 ---
 
