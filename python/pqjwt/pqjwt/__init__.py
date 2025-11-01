@@ -18,7 +18,7 @@ from .errors import (
     KeyFormatError
 )
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 __author__ = "Eduardo Giraudi"
 __email__ = "eduardogiraudi000@gmail.com"
 __description__ = "Post-Quantum Cryptography JWT Library"

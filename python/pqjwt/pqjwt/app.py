@@ -24,8 +24,7 @@ from pqcrypto.sign.sphincs_shake_192f_simple import generate_keypair as generate
 from pqcrypto.sign.sphincs_shake_192s_simple import generate_keypair as generate_keypair_sphincs_shake192s, sign as sign_sphincs_shake192s, verify as verify_sphincs_shake192s
 from pqcrypto.sign.sphincs_shake_256f_simple import generate_keypair as generate_keypair_sphincs_shake256f, sign as sign_sphincs_shake256f, verify as verify_sphincs_shake256f
 from pqcrypto.sign.sphincs_shake_256s_simple import generate_keypair as generate_keypair_sphincs_shake256s, sign as sign_sphincs_shake256s, verify as verify_sphincs_shake256s
-
-import errors
+from . import errors
 
 
 class JWTKeyManager:
