@@ -19,8 +19,8 @@ pnpm-debug.log*
 
 .npm/
 .pnpm-store/
+.pytest_cache/
 .cache/
-
 dist/
 build/
 

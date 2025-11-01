@@ -1,0 +1,70 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pqjwt"
+dynamic = ["version", "description"]
+
+readme = "README.md"
+requires-python = ">=3.7"
+license = { text = "MIT" }
+
+authors = [
+  { name = "Eduardo Giraudi", email = "tua@email.it" }
+]
+
+keywords = [
+    "jwt",
+    "post-quantum",
+    "cryptography",
+    "security",
+    "authentication",
+    "ml-dsa",
+    "dilithium",
+    "falcon",
+    "sphincs"
+]
+
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Security :: Cryptography",
+    "Topic :: Software Development :: Libraries :: Python Modules"
+]
+
+dependencies = [
+    "pqcrypto>=0.3.4"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+]
+
+[project.urls]
+Homepage = "https://github.com/eduardogiraudi/pqjwt"
+Repository = "https://github.com/eduardogiraudi/pqjwt"
+Issues = "https://github.com/eduardogiraudi/pqjwt/issues"
+
+[tool.setuptools]
+include-package-data = true
+zip-safe = false
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["pqjwt*"]
+exclude = ["tests*"]
+
+[tool.setuptools.dynamic]
+version = { attr = "pqjwt.__version__" }
+description = { file = ["README.md"] }
