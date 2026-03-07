@@ -31,3 +31,5 @@ build/
 coverage/
 
 .keys/
+
+**/example-keys/
