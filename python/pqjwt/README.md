@@ -126,25 +126,25 @@ print("JWT with custom headers:", jwt_token)
 ### ML-DSA (Dilithium) - NIST Standardized
 | Algorithm | JWT Header | Security Level | Description |
 |-----------|------------|----------------|-------------|
-| `ML-DSA-44` | `Dilithium2` | Level 2 | Balanced security/performance |
-| `ML-DSA-65` | `Dilithium3` | Level 3 | Higher security |
-| `ML-DSA-87` | `Dilithium5` | Level 5 | Highest security |
+| `ML-DSA-44` | `ML-DSA-44` | Level 2 | Balanced security/performance |
+| `ML-DSA-65` | `ML-DSA-65` | Level 3 | Higher security |
+| `ML-DSA-87` | `ML-DSA-87` | Level 5 | Highest security |
 
 ### Falcon Padded - Timing Attack Resistant
 | Algorithm | JWT Header | Security Level | Signature Size |
 |-----------|------------|----------------|----------------|
-| `Falcon-512` | `Falcon512` | Level 1 | ~690 bytes |
-| `Falcon-1024` | `Falcon1024` | Level 5 | ~1330 bytes |
+| `Falcon-512` | `FN-DSA-512` | Level 1 | ~690 bytes |
+| `Falcon-1024` | `FN-DSA-1024` | Level 5 | ~1330 bytes |
 
 ### SPHINCS+ - Hash-Based Security
 | Algorithm | JWT Header | Security Level | Signature Size |
 |-----------|------------|----------------|----------------|
-| `SPHINCS+-SHA2-128f-simple` | `SphincsSha2128f` | Level 1 | ~17KB |
-| `SPHINCS+-SHA2-128s-simple` | `SphincsSha2128s` | Level 1 | ~8KB |
-| `SPHINCS+-SHA2-192f-simple` | `SphincsSha2192f` | Level 3 | ~35KB |
-| `SPHINCS+-SHA2-192s-simple` | `SphincsSha2192s` | Level 3 | ~16KB |
-| `SPHINCS+-SHA2-256f-simple` | `SphincsSha2256f` | Level 5 | ~49KB |
-| `SPHINCS+-SHA2-256s-simple` | `SphincsSha2256s` | Level 5 | ~22KB |
+| `SPHINCS+-SHA2-128f-simple` | `SLH-DSA-SHA2-128f` | Level 1 | ~17KB |
+| `SPHINCS+-SHA2-128s-simple` | `SLH-DSA-SHA2-128s` | Level 1 | ~8KB |
+| `SPHINCS+-SHA2-192f-simple` | `SLH-DSA-SHA2-192f` | Level 3 | ~35KB |
+| `SPHINCS+-SHA2-192s-simple` | `SLH-DSA-SHA2-192s` | Level 3 | ~16KB |
+| `SPHINCS+-SHA2-256f-simple` | `SLH-DSA-SHA2-256f` | Level 5 | ~49KB |
+| `SPHINCS+-SHA2-256s-simple` | `SLH-DSA-SHA2-256s` | Level 5 | ~22KB |
 
 *Plus SHAKE variants for all SPHINCS+ algorithms*
 
