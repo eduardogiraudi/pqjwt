@@ -22,9 +22,9 @@ Supports:
 ### [JavaScript Library (`pqjwt`)](./js/README.md)
 
 JavaScript implementation for **Node.js** and browsers, designed to interoperate with the Python version.
-Currently, it supports **ML-DSA (Dilithium)** and **SLH‑DSA (SPHINCS+)** algorithms.
+Currently, it supports **ML-DSA (Dilithium)**, **SLH‑DSA (SPHINCS+)** and **FN-DSA (Falcon)** algorithms.
 
-> **Note:** The Python version also supports **Falcon-512** and **Falcon-1024**, but these are **not yet available** in the JavaScript version. Adding Falcon support is a **priority** to ensure full interoperability between the two versions.
+
 
 > See the [full JavaScript documentation](./js/README.md)
 
@@ -56,4 +56,4 @@ Ensure all code follows project conventions and passes tests before submitting a
 
 Authors: **PQJWT Contributors**  
 Email: `eduardogiraudi000@gmail.com`  
-Repository: [https://github.com/your-username/pqjwt](https://github.com/eduardogiraudi/pqjwt)
+Repository: [https://github.com/eduardogiraudi/pqjwt](https://github.com/eduardogiraudi/pqjwt)

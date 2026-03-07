@@ -61,7 +61,7 @@ pnpm add pqjwt
 import { createPublisher, createConsumer } from 'pqjwt';
 
 // Publisher: generates keys if missing, signs JWTs
-const publisher = createPublisher('./keys', 'pem', 'ML-DSA-65');
+const publisher = await createPublisher('./keys', 'pem', 'ML-DSA-65');
 
 // JWT payload with standard claims
 const payload = {
@@ -79,7 +79,7 @@ console.log('Generated JWT:', jwtToken);
 ### Consumer Example
 
 ```javascript
-const consumer = createConsumer('./keys', 'pem', 'ML-DSA-65');
+const consumer = await createConsumer('./keys', 'pem', 'ML-DSA-65');
 
 try {
   const { headers, payload: claims } = consumer.decode(jwtToken);
@@ -107,29 +107,32 @@ console.log('JWT SPHINCS+ token:', token);
 
 | Algorithm | JWT Header | Security Level | Description                   |
 | --------- | ---------- | -------------- | ----------------------------- |
-| ML-DSA-44 | Dilithium2 | Level 2        | Balanced security/performance |
-| ML-DSA-65 | Dilithium3 | Level 3        | Higher security (Recommended) |
-| ML-DSA-87 | Dilithium5 | Level 5        | Maximum security              |
+| ML-DSA-44 | ML-DSA-44 | Level 2        | Balanced security/performance |
+| ML-DSA-65 | ML-DSA-65 | Level 3        | Higher security (Recommended) |
+| ML-DSA-87 | ML-DSA-87 | Level 5        | Maximum security              |
 
 ### SLH‑DSA (SPHINCS+) Variants
 
 | Algorithm           | JWT Header       | Description   |
 | ------------------- | ---------------- | ------------- |
-| SPHINCS+-SHA2-128f  | SphincsSha2128f  | Fast variant  |
-| SPHINCS+-SHA2-128s  | SphincsSha2128s  | Small variant |
-| SPHINCS+-SHA2-192f  | SphincsSha2192f  | Fast variant  |
-| SPHINCS+-SHA2-192s  | SphincsSha2192s  | Small variant |
-| SPHINCS+-SHA2-256f  | SphincsSha2256f  | Fast variant  |
-| SPHINCS+-SHA2-256s  | SphincsSha2256s  | Small variant |
-| SPHINCS+-SHAKE-128f | SphincsShake128f | Fast variant  |
-| SPHINCS+-SHAKE-128s | SphincsShake128s | Small variant |
-| SPHINCS+-SHAKE-192f | SphincsShake192f | Fast variant  |
-| SPHINCS+-SHAKE-192s | SphincsShake192s | Small variant |
-| SPHINCS+-SHAKE-256f | SphincsShake256f | Fast variant  |
-| SPHINCS+-SHAKE-256s | SphincsShake256s | Small variant |
+| SPHINCS+-SHA2-128f  | SLH-DSA-SHA2-128f  | Fast variant  |
+| SPHINCS+-SHA2-128s  | SLH-DSA-SHA2-128s  | Small variant |
+| SPHINCS+-SHA2-192f  | SLH-DSA-SHA2-192f  | Fast variant  |
+| SPHINCS+-SHA2-192s  | SLH-DSA-SHA2-192s  | Small variant |
+| SPHINCS+-SHA2-256f  | SLH-DSA-SHA2-256f  | Fast variant  |
+| SPHINCS+-SHA2-256s  | SLH-DSA-SHA2-256s  | Small variant |
+| SPHINCS+-SHAKE-128f | SLH-DSA-SHAKE-128f | Fast variant  |
+| SPHINCS+-SHAKE-128s | SLH-DSA-SHAKE-128s | Small variant |
+| SPHINCS+-SHAKE-192f | SLH-DSA-SHAKE-192f | Fast variant  |
+| SPHINCS+-SHAKE-192s | SLH-DSA-SHAKE-192s | Small variant |
+| SPHINCS+-SHAKE-256f | SLH-DSA-SHAKE-256f | Fast variant  |
+| SPHINCS+-SHAKE-256s | SLH-DSA-SHAKE-256s | Small variant |
 
-> **Future Support**: Falcon-512 and Falcon-1024 algorithms will be supported in future releases for additional post-quantum security options.
-
+### FN-DSA (Falcon) - NIST Standardized (Padded)
+| Algorithm | JWT Header | Security Level | Description                   |
+| --------- | ---------- | -------------- | ----------------------------- |
+| FN-DSA-512 | FN-DSA-512 | Level 2        | Compact signatures (Padded format) |
+| FN-DSA-1024 | FN-DSA-1024 | Level 5        | High security, compact (Padded format) |
 ---
 
 ## Key Format Disclaimer
@@ -138,14 +141,7 @@ console.log('JWT SPHINCS+ token:', token);
 - Keys are stored in a **library-specific format** that only works with this library
 - **Interoperability with external systems is limited**
 
-### Manual Key Management
 
-```javascript
-import { JWTKeyManager } from 'pqjwt';
-
-const key = JWTKeyManager.loadKey('my_key.pem', 'auto', 'public');
-JWTKeyManager.saveKey(key, 'saved_key.pem', 'pem', 'public');
-```
 
 ---
 
@@ -186,7 +182,7 @@ try {
 import express from 'express';
 import { createConsumer } from 'pqjwt';
 
-const consumer = createConsumer('./keys', 'pem', 'ML-DSA-65');
+const consumer = await createConsumer('./keys', 'pem', 'ML-DSA-65');
 const app = express();
 
 function authenticateToken(req, res, next) {

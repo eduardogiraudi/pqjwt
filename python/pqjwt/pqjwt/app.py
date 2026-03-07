@@ -39,103 +39,103 @@ class JWTKeyManager:
             "generate": generate_keypair_44,
             "sign": sign_44,
             "verify": verify_44,
-            "jwt_header": "Dilithium2"
+            "jwt_header": "ML-DSA-44"
         },
         "ML-DSA-65": {
             "generate": generate_keypair_65,
             "sign": sign_65,
             "verify": verify_65,
-            "jwt_header": "Dilithium3"
+            "jwt_header": "ML-DSA-65"
         },
         "ML-DSA-87": {
             "generate": generate_keypair_87,
             "sign": sign_87,
             "verify": verify_87,
-            "jwt_header": "Dilithium5"
+            "jwt_header": "ML-DSA-87"
         },
         "Falcon-512": {
             "generate": generate_keypair_falcon512,
             "sign": sign_falcon512,
             "verify": verify_falcon512,
-            "jwt_header": "Falcon512",
+            "jwt_header": "FN-DSA-512",
         },
         "Falcon-1024": {
             "generate": generate_keypair_falcon1024,
             "sign": sign_falcon1024,
             "verify": verify_falcon1024,
-            "jwt_header": "Falcon1024",
+            "jwt_header": "FN-DSA-1024",
         },
         "SPHINCS+-SHA2-128f-simple": {
             "generate": generate_keypair_sphincs128f,
             "sign": sign_sphincs128f,
             "verify": verify_sphincs128f,
-            "jwt_header": "SphincsSha2128f",
+            "jwt_header": "SLH-DSA-SHA2-128f",
         },
         "SPHINCS+-SHA2-128s-simple": {
             "generate": generate_keypair_sphincs128s,
             "sign": sign_sphincs128s,
             "verify": verify_sphincs128s,
-            "jwt_header": "SphincsSha2128s",
+            "jwt_header": "SLH-DSA-SHA2-128s",
         },
         "SPHINCS+-SHA2-192f-simple": {
             "generate": generate_keypair_sphincs192f,
             "sign": sign_sphincs192f,
             "verify": verify_sphincs192f,
-            "jwt_header": "SphincsSha2192f",
+            "jwt_header": "SLH-DSA-SHA2-192f",
         },
         "SPHINCS+-SHA2-192s-simple": {
             "generate": generate_keypair_sphincs192s,
             "sign": sign_sphincs192s,
             "verify": verify_sphincs192s,
-            "jwt_header": "SphincsSha2192s",
+            "jwt_header": "SLH-DSA-SHA2-192s",
         },
         "SPHINCS+-SHA2-256f-simple": {
             "generate": generate_keypair_sphincs256f,
             "sign": sign_sphincs256f,
             "verify": verify_sphincs256f,
-            "jwt_header": "SphincsSha2256f",
+            "jwt_header": "SLH-DSA-SHA2-256f",
         },
         "SPHINCS+-SHA2-256s-simple": {
             "generate": generate_keypair_sphincs256s,
             "sign": sign_sphincs256s,
             "verify": verify_sphincs256s,
-            "jwt_header": "SphincsSha2256s",
+            "jwt_header": "SLH-DSA-SHA2-256s",
         },
         "SPHINCS+-SHAKE-128f-simple": {
             "generate": generate_keypair_sphincs_shake128f,
             "sign": sign_sphincs_shake128f,
             "verify": verify_sphincs_shake128f,
-            "jwt_header": "SphincsShake128f",
+            "jwt_header": "SLH-DSA-SHAKE-128f",
         },
         "SPHINCS+-SHAKE-128s-simple": {
             "generate": generate_keypair_sphincs_shake128s,
             "sign": sign_sphincs_shake128s,
             "verify": verify_sphincs_shake128s,
-            "jwt_header": "SphincsShake128s",
+            "jwt_header": "SLH-DSA-SHAKE-128s",
         },
         "SPHINCS+-SHAKE-192f-simple": {
             "generate": generate_keypair_sphincs_shake192f,
             "sign": sign_sphincs_shake192f,
             "verify": verify_sphincs_shake192f,
-            "jwt_header": "SphincsShake192f",
+            "jwt_header": "SLH-DSA-SHAKE-192f",
         },
         "SPHINCS+-SHAKE-192s-simple": {
             "generate": generate_keypair_sphincs_shake192s,
             "sign": sign_sphincs_shake192s,
             "verify": verify_sphincs_shake192s,
-            "jwt_header": "SphincsShake192s",
+            "jwt_header": "SLH-DSA-SHAKE-192s",
         },
         "SPHINCS+-SHAKE-256f-simple": {
             "generate": generate_keypair_sphincs_shake256f,
             "sign": sign_sphincs_shake256f,
             "verify": verify_sphincs_shake256f,
-            "jwt_header": "SphincsShake256f",
+            "jwt_header": "SLH-DSA-SHAKE-256f",
         },
         "SPHINCS+-SHAKE-256s-simple": {
             "generate": generate_keypair_sphincs_shake256s,
             "sign": sign_sphincs_shake256s,
             "verify": verify_sphincs_shake256s,
-            "jwt_header": "SphincsShake256s",
+            "jwt_header": "SLH-DSA-SHAKE-256s",
         }
     } 
 
