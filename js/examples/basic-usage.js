@@ -5,7 +5,7 @@ import { JWTKeyManager } from '../src/jwt-manager.js';
   try {
 
     
-    const algorithm = 'Falcon-1024';
+    const algorithm = 'FN-DSA-512';
     const keyDir = './example-keys';
 
     //pub init

@@ -27,7 +27,46 @@ import {
     createFalconPadded512,
     createFalconPadded1024,
 } from '@oqs/liboqs-js/sig'; 
+import asn from 'asn1.js';
 
+const AlgorithmIdentifier = asn.define('AlgorithmIdentifier', function() {
+    this.seq().obj(this.key('id').objid());
+});
+
+const SubjectPublicKeyInfo = asn.define('SubjectPublicKeyInfo', function() {
+    this.seq().obj(
+        this.key('algorithm').use(AlgorithmIdentifier),
+        this.key('subjectPublicKey').bitstr()
+    );
+});
+
+const OneAsymmetricKey = asn.define('OneAsymmetricKey', function() {
+    this.seq().obj(
+        this.key('version').int(),
+        this.key('algorithm').use(AlgorithmIdentifier),
+        this.key('privateKey').octstr()
+    );
+});
+
+const OIDS = {
+  'ML-DSA-44':  [2, 16, 840, 1, 101, 3, 4, 3, 17],
+  'ML-DSA-65':  [2, 16, 840, 1, 101, 3, 4, 3, 18],
+  'ML-DSA-87':  [2, 16, 840, 1, 101, 3, 4, 3, 19],
+  'FN-DSA-512':  [1, 3, 9999, 3, 6],
+  'FN-DSA-1024': [1, 3, 9999, 3, 7],
+  'SLH-DSA-SHA2-128s': [2, 16, 840, 1, 101, 3, 4, 3, 20],
+  'SLH-DSA-SHA2-128f': [2, 16, 840, 1, 101, 3, 4, 3, 21],
+  'SLH-DSA-SHA2-192s': [2, 16, 840, 1, 101, 3, 4, 3, 22],
+  'SLH-DSA-SHA2-192f': [2, 16, 840, 1, 101, 3, 4, 3, 23],
+  'SLH-DSA-SHA2-256s': [2, 16, 840, 1, 101, 3, 4, 3, 24],
+  'SLH-DSA-SHA2-256f': [2, 16, 840, 1, 101, 3, 4, 3, 25],
+  'SLH-DSA-SHAKE-128s': [2, 16, 840, 1, 101, 3, 4, 3, 26],
+  'SLH-DSA-SHAKE-128f': [2, 16, 840, 1, 101, 3, 4, 3, 27],
+  'SLH-DSA-SHAKE-192s': [2, 16, 840, 1, 101, 3, 4, 3, 28],
+  'SLH-DSA-SHAKE-192f': [2, 16, 840, 1, 101, 3, 4, 3, 29],
+  'SLH-DSA-SHAKE-256s': [2, 16, 840, 1, 101, 3, 4, 3, 30],
+  'SLH-DSA-SHAKE-256f': [2, 16, 840, 1, 101, 3, 4, 3, 31]
+};
 
 
 const ALGORITHM_REGISTRY = {
@@ -55,8 +94,8 @@ const ALGORITHM_REGISTRY = {
     // falcon
     //"Falcon-512":         { factory: createFalcon512,        jwt_header: "Falcon512",        instance: null },
     //"Falcon-1024":        { factory: createFalcon1024,       jwt_header: "Falcon1024",       instance: null },
-    "Falcon-512":  { factory: createFalconPadded512,  jwt_header: "FN-DSA-512",  instance: null },
-    "Falcon-1024": { factory: createFalconPadded1024, jwt_header: "FN-DSA-1024", instance: null },
+    "FN-DSA-512":  { factory: createFalconPadded512,  jwt_header: "FN-DSA-512",  instance: null },
+    "FN-DSA-1024": { factory: createFalconPadded1024, jwt_header: "FN-DSA-1024", instance: null },
 };
 
 //JWTKeyManager
@@ -108,26 +147,59 @@ class JWTKeyManager {
         return entry.instance;
     }
 
-    static saveKey(key, filePath, formatType = "pem", keyType = "public") {
+    static saveKey(key, filePath, formatType = "pem", keyType = "public", algorithm = "ML-DSA-65") {
+        let finalBuffer = Buffer.from(key);
+    
         if (formatType === "pem") {
-            const header = keyType === "private" ? "-----BEGIN PRIVATE KEY-----" : "-----BEGIN PUBLIC KEY-----";
-            const footer = keyType === "private" ? "-----END PRIVATE KEY-----"   : "-----END PUBLIC KEY-----";
-            writeFileSync(filePath, `${header}\n${Buffer.from(key).toString('base64')}\n${footer}`);
-        } else if (formatType === "bin") {
-            writeFileSync(filePath, key);
+            const oid = OIDS[algorithm];
+            if (!oid) throw new Error(`OID not found for the algorithm: ${algorithm}`);
+    
+            if (keyType === "public") {
+                finalBuffer = SubjectPublicKeyInfo.encode({
+                    algorithm: { id: oid },
+                    subjectPublicKey: { unused: 0, data: finalBuffer }
+                }, 'der');
+            } else {
+                finalBuffer = OneAsymmetricKey.encode({
+                    version: 0,
+                    algorithm: { id: oid },
+                    privateKey: finalBuffer
+                }, 'der');
+            }
+    
+            const label = keyType === "private" ? "PRIVATE KEY" : "PUBLIC KEY";
+            const base64 = finalBuffer.toString('base64');
+            const lines = base64.match(/.{1,64}/g).join('\n');
+            const pem = `-----BEGIN ${label}-----\n${lines}\n-----END ${label}-----\n`;
+            writeFileSync(filePath, pem);
         } else {
-            throw new Error(`Unsupported format: ${formatType}`);
+            writeFileSync(filePath, finalBuffer);
         }
     }
 
     static loadKey(filePath, formatType = "auto") {
         if (formatType === "auto") formatType = filePath.endsWith('.pem') ? "pem" : "bin";
-        if (formatType === "pem") {
-            const lines = readFileSync(filePath, 'utf8').trim().split('\n');
-            if (lines.length < 3) throw new Error("Invalid PEM format");
-            return Buffer.from(lines.slice(1, -1).join(''), 'base64');
+        
+        const rawData = readFileSync(filePath);
+        if (formatType === "bin") return rawData;
+    
+        const pemString = rawData.toString('utf8');
+        const base64 = pemString.replace(/-----BEGIN [^-]+-----|-----END [^-]+-----|\s/g, '');
+        const derBuffer = Buffer.from(base64, 'base64');
+    
+        try {
+            if (pemString.includes("PUBLIC KEY")) {
+                const decoded = SubjectPublicKeyInfo.decode(derBuffer, 'der');
+                return Buffer.from(decoded.subjectPublicKey.data);
+            } 
+            else {
+                const decoded = OneAsymmetricKey.decode(derBuffer, 'der');
+                return Buffer.from(decoded.privateKey);
+            }
+        } catch (e) {
+            console.warn("ASN.1 decode failed, returning raw base64 content", e.message);
+            return derBuffer;
         }
-        return readFileSync(filePath);
     }
 }
 
@@ -169,8 +241,8 @@ class JWTManager {
                 const { publicKey, secretKey } = instance.generateKeyPair();
                 this.publicKey = Buffer.from(publicKey);
                 this.secretKey = Buffer.from(secretKey);
-                JWTKeyManager.saveKey(this.publicKey, publicKeyPath, this.keyFormat, "public");
-                JWTKeyManager.saveKey(this.secretKey, secretKeyPath, this.keyFormat, "private");
+                JWTKeyManager.saveKey(this.publicKey, publicKeyPath, this.keyFormat, "public", this.algorithm);
+                JWTKeyManager.saveKey(this.secretKey, secretKeyPath, this.keyFormat, "private", this.algorithm);
                 console.log(`New ${this.algorithm} keys generated and saved in ${this.keyDir}`);
             }
         } else {

@@ -33,7 +33,8 @@
   "author": "Eduardo Giraudi <eduardogiraudi000@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@oqs/liboqs-js": "^0.15.1"
+    "@oqs/liboqs-js": "^0.15.1",
+    "asn1.js": "^5.4.1"
   },
   "devDependencies": {
     "c8": "^9.0.0",

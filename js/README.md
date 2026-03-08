@@ -12,7 +12,7 @@ This library provides quantum-resistant JWT authentication with a simple, intuit
 * **Multiple Security Levels**: Supports ML-DSA-44/65/87 and 12 SPHINCS+ variants for different security/performance trade-offs.
 * **Flexible Key Storage**: Save/load key pairs in multiple formats:
 
-  * `pem`: Base64 with PEM headers (raw bytes, not PKCS#8/SPKI)
+  * `pem`: **RFC 5280** (SubjectPublicKeyInfo) for public keys and **PKCS#8** (OneAsymmetricKey) for private keys.
   * `bin`: Raw binary key bytes
 * **Publisher/Consumer Roles**:
 
@@ -94,7 +94,7 @@ try {
 ### SPHINCS+ Example
 
 ```javascript
-const sphincsPublisher = createPublisher('./keys', 'pem', 'SPHINCS+-SHAKE-256f');
+const sphincsPublisher = createPublisher('./keys', 'pem', 'SLH-DSA-SHAKE-256f');
 const token = sphincsPublisher.encode({ user: 'alice', exp: Math.floor(Date.now()/1000)+3600 });
 console.log('JWT SPHINCS+ token:', token);
 ```
@@ -115,18 +115,18 @@ console.log('JWT SPHINCS+ token:', token);
 
 | Algorithm           | JWT Header       | Description   |
 | ------------------- | ---------------- | ------------- |
-| SPHINCS+-SHA2-128f  | SLH-DSA-SHA2-128f  | Fast variant  |
-| SPHINCS+-SHA2-128s  | SLH-DSA-SHA2-128s  | Small variant |
-| SPHINCS+-SHA2-192f  | SLH-DSA-SHA2-192f  | Fast variant  |
-| SPHINCS+-SHA2-192s  | SLH-DSA-SHA2-192s  | Small variant |
-| SPHINCS+-SHA2-256f  | SLH-DSA-SHA2-256f  | Fast variant  |
-| SPHINCS+-SHA2-256s  | SLH-DSA-SHA2-256s  | Small variant |
-| SPHINCS+-SHAKE-128f | SLH-DSA-SHAKE-128f | Fast variant  |
-| SPHINCS+-SHAKE-128s | SLH-DSA-SHAKE-128s | Small variant |
-| SPHINCS+-SHAKE-192f | SLH-DSA-SHAKE-192f | Fast variant  |
-| SPHINCS+-SHAKE-192s | SLH-DSA-SHAKE-192s | Small variant |
-| SPHINCS+-SHAKE-256f | SLH-DSA-SHAKE-256f | Fast variant  |
-| SPHINCS+-SHAKE-256s | SLH-DSA-SHAKE-256s | Small variant |
+|  SLH-DSA-SHA2-128f | SLH-DSA-SHA2-128f  | Fast variant  |
+| SLH-DSA-SHA2-128s  | SLH-DSA-SHA2-128s  | Small variant |
+| SLH-DSA-SHA2-192f  | SLH-DSA-SHA2-192f  | Fast variant  |
+| SLH-DSA-SHA2-192s  | SLH-DSA-SHA2-192s  | Small variant |
+| SLH-DSA-SHA2-256f  | SLH-DSA-SHA2-256f  | Fast variant  |
+| SLH-DSA-SHA2-256s  | SLH-DSA-SHA2-256s  | Small variant |
+| SLH-DSA-SHAKE-128f | SLH-DSA-SHAKE-128f | Fast variant  |
+| SLH-DSA-SHAKE-128s | SLH-DSA-SHAKE-128s | Small variant |
+| SLH-DSA-SHAKE-192f | SLH-DSA-SHAKE-192f | Fast variant  |
+| SLH-DSA-SHAKE-192s | SLH-DSA-SHAKE-192s | Small variant |
+| SLH-DSA-SHAKE-256f | SLH-DSA-SHAKE-256f | Fast variant  |
+| SLH-DSA-SHAKE-256s | SLH-DSA-SHAKE-256s | Small variant |
 
 ### FN-DSA (Falcon) - NIST Standardized (Padded)
 | Algorithm | JWT Header | Security Level | Description                   |
@@ -135,11 +135,6 @@ console.log('JWT SPHINCS+ token:', token);
 | FN-DSA-1024 | FN-DSA-1024 | Level 5        | High security, compact (Padded format) |
 ---
 
-## Key Format Disclaimer
-**Important Note on PEM Format**: Current PEM implementation uses generic headers (`BEGIN PUBLIC KEY`/`BEGIN PRIVATE KEY`) with base64-encoded raw key bytes. Full PKCS#8 (private keys) and SPKI (public keys) ASN.1 encoding is **not yet implemented**. This means:
-- Generated PEM files are **not standards-compliant** with OpenSSL and other PKI tools
-- Keys are stored in a **library-specific format** that only works with this library
-- **Interoperability with external systems is limited**
 
 
 
@@ -212,21 +207,23 @@ Keys are automatically named based on algorithm and format:
 
 | Algorithm           | Format  | Public Key                      | Private Key |                                  |       |
 | ------------------- | ------- | ------------------------------- | ----------- | -------------------------------- | ----- |
-| ML-DSA-44           | pem/bin | `ml_dsa_44_public.{pem          | bin}`       | `ml_dsa_44_private.{pem          | bin}` |
-| ML-DSA-65           | pem/bin | `ml_dsa_65_public.{pem          | bin}`       | `ml_dsa_65_private.{pem          | bin}` |
-| ML-DSA-87           | pem/bin | `ml_dsa_87_public.{pem          | bin}`       | `ml_dsa_87_private.{pem          | bin}` |
-| SPHINCS+-SHA2-128f  | pem/bin | `sphincs_sha2_128f_public.{pem  | bin}`       | `sphincs_sha2_128f_private.{pem  | bin}` |
-| SPHINCS+-SHA2-128s  | pem/bin | `sphincs_sha2_128s_public.{pem  | bin}`       | `sphincs_sha2_128s_private.{pem  | bin}` |
-| SPHINCS+-SHA2-192f  | pem/bin | `sphincs_sha2_192f_public.{pem  | bin}`       | `sphincs_sha2_192f_private.{pem  | bin}` |
-| SPHINCS+-SHA2-192s  | pem/bin | `sphincs_sha2_192s_public.{pem  | bin}`       | `sphincs_sha2_192s_private.{pem  | bin}` |
-| SPHINCS+-SHA2-256f  | pem/bin | `sphincs_sha2_256f_public.{pem  | bin}`       | `sphincs_sha2_256f_private.{pem  | bin}` |
-| SPHINCS+-SHA2-256s  | pem/bin | `sphincs_sha2_256s_public.{pem  | bin}`       | `sphincs_sha2_256s_private.{pem  | bin}` |
-| SPHINCS+-SHAKE-128f | pem/bin | `sphincs_shake_128f_public.{pem | bin}`       | `sphincs_shake_128f_private.{pem | bin}` |
-| SPHINCS+-SHAKE-128s | pem/bin | `sphincs_shake_128s_public.{pem | bin}`       | `sphincs_shake_128s_private.{pem | bin}` |
-| SPHINCS+-SHAKE-192f | pem/bin | `sphincs_shake_192f_public.{pem | bin}`       | `sphincs_shake_192f_private.{pem | bin}` |
-| SPHINCS+-SHAKE-192s | pem/bin | `sphincs_shake_192s_public.{pem | bin}`       | `sphincs_shake_192s_private.{pem | bin}` |
-| SPHINCS+-SHAKE-256f | pem/bin | `sphincs_shake_256f_public.{pem | bin}`       | `sphincs_shake_256f_private.{pem | bin}` |
-| SPHINCS+-SHAKE-256s | pem/bin | `sphincs_shake_256s_public.{pem | bin}`       | `sphincs_shake_256s_private.{pem | bin}` |
+|     ML-DSA-44       | pem/bin | `ml_dsa_44_public.{pem          | bin}`       | `ml_dsa_44_private.{pem          | bin}` |
+|     ML-DSA-65       | pem/bin | `ml_dsa_65_public.{pem          | bin}`       | `ml_dsa_65_private.{pem          | bin}` |
+|     ML-DSA-87       | pem/bin | `ml_dsa_87_public.{pem          | bin}`       | `ml_dsa_87_private.{pem          | bin}` |
+| SLH-DSA-SHA2-128f  | pem/bin | `slh_dsa_sha2_128f_public.{pem  | bin}`       | `slh_dsa_sha2_128f_private.{pem  | bin}` |
+|  SLH-DSA-SHA2-128s | pem/bin | `slh_dsa_sha2_128s_public.{pem  | bin}`       | `slh_dsa_sha2_128s_private.{pem  | bin}` |
+| SLH-DSA-SHA2-192f  | pem/bin | `slh_dsa_sha2_192f_public.{pem  | bin}`       | `slh_dsa_sha2_192f_private.{pem  | bin}` |
+| SLH-DSA-SHA2-192s  | pem/bin | `slh_dsa_sha2_192s_public.{pem  | bin}`       | `slh_dsa_sha2_192s_private.{pem  | bin}` |
+| SLH-DSA-SHA2-256f  | pem/bin | `slh_dsa_sha2_256f_public.{pem  | bin}`       | `slh_dsa_sha2_256f_private.{pem  | bin}` |
+|  SLH-DSA-SHA2-256s | pem/bin | `slh_dsa_sha2_256s_public.{pem  | bin}`       | `slh_dsa_sha2_256s_private.{pem  | bin}` |
+| SLH-DSA-SHAKE-128f | pem/bin | `slh_dsa_shake_128f_public.{pem | bin}`       | `slh_dsa_shake_128f_private.{pem | bin}` |
+| SLH-DSA-SHAKE-128s | pem/bin | `slh_dsa_shake_128s_public.{pem | bin}`       | `slh_dsa_shake_128s_private.{pem | bin}` |
+| SLH-DSA-SHAKE-192f | pem/bin | `slh_dsa_shake_192f_public.{pem | bin}`       | `slh_dsa_shake_192f_private.{pem | bin}` |
+| SLH-DSA-SHAKE-192s | pem/bin | `slh_dsa_shake_192s_public.{pem | bin}`       | `slh_dsa_shake_192s_private.{pem | bin}` |
+| SLH-DSA-SHAKE-256f | pem/bin | `slh_dsa_shake_256f_public.{pem | bin}`       | `slh_dsa_shake_256f_private.{pem | bin}` |
+| SLH-DSA-SHAKE-256s | pem/bin | `slh_dsa_shake_256s_public.{pem | bin}`       | `slh_dsa_shake_256s_private.{pem | bin}` |
+| FN-DSA-512 | pem/bin | `fn_dsa_512_public.{pem | bin}`       | `fn_dsa_512_private.{pem | bin}` |
+| FN-DSA-1024 | pem/bin | `fn_dsa_1024_public.{pem | bin}`       | `fn_dsa_1024_private.{pem | bin}` |
 
 > **Note**: The `{pem|bin}` placeholder indicates that either PEM or binary format can be used depending on your configuration.
 
@@ -257,8 +254,8 @@ MIT License - see [LICENSE](../LICENSE)
 ---
 
 ## Acknowledgments
-
-Built with [@noble/post-quantum](https://github.com/paulmillr/noble-post-quantum), implementing ML-DSA (FIPS 204) and SPHINCS+ (SLH‑DSA) for post-quantum JWTs.
-
+Built with:
+* [@oqs/liboqs-js](https://open-quantum-safe.github.io/liboqs-js/) - PQC primitives.
+* [asn1.js](https://github.com/indutny/asn1.js) - RFC-compliant key encoding.
 ---
 
