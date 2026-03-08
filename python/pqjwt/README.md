@@ -14,7 +14,7 @@ This library encapsulates key management and JWT logic, making it easy to integr
   - **Falcon Padded**: Falcon-512, Falcon-1024  
   - **SPHINCS+**: Multiple variants with SHA2 and SHAKE hashing
 - **Flexible Key Storage:** Save/load key pairs in multiple formats:
-  - `pem`: Base64 with generic PEM headers
+  - `pem`: Standard-compliant ASN.1 structures (PKCS#8 for private keys, X.509 SPKI for public keys) with official NIST Object Identifiers (OIDs).
   - `pub`: Simple public key in hex format
   - `bin`: Raw binary key bytes
 - **Publisher/Consumer Roles:** 
@@ -31,7 +31,7 @@ This library encapsulates key management and JWT logic, making it easy to integr
 - `pqcrypto` package
 
 ```bash
-pip install pqcrypto
+pip install pqcrypto pyasn1
 ```
 
 ---
@@ -100,11 +100,11 @@ except Exception as e:
 ```python
 from pqjwt import create_publisher
 
-publisher = create_publisher(algorithm="Falcon-512")
+publisher = create_publisher(algorithm="FN-DSA-512")
 
 # Custom JWT headers
 custom_headers = {
-    "alg": "Falcon512",
+    "alg": "FN-DSA-512",
     "typ": "JWT", 
     "kid": "key-001"  # Key ID for key rotation
 }
@@ -133,18 +133,18 @@ print("JWT with custom headers:", jwt_token)
 ### Falcon Padded - Timing Attack Resistant
 | Algorithm | JWT Header | Security Level | Signature Size |
 |-----------|------------|----------------|----------------|
-| `Falcon-512` | `FN-DSA-512` | Level 1 | ~690 bytes |
-| `Falcon-1024` | `FN-DSA-1024` | Level 5 | ~1330 bytes |
+| `FN-DSA-512` | `FN-DSA-512` | Level 1 | ~690 bytes |
+| `FN-DSA-1024` | `FN-DSA-1024` | Level 5 | ~1330 bytes |
 
 ### SPHINCS+ - Hash-Based Security
 | Algorithm | JWT Header | Security Level | Signature Size |
 |-----------|------------|----------------|----------------|
-| `SPHINCS+-SHA2-128f-simple` | `SLH-DSA-SHA2-128f` | Level 1 | ~17KB |
-| `SPHINCS+-SHA2-128s-simple` | `SLH-DSA-SHA2-128s` | Level 1 | ~8KB |
-| `SPHINCS+-SHA2-192f-simple` | `SLH-DSA-SHA2-192f` | Level 3 | ~35KB |
-| `SPHINCS+-SHA2-192s-simple` | `SLH-DSA-SHA2-192s` | Level 3 | ~16KB |
-| `SPHINCS+-SHA2-256f-simple` | `SLH-DSA-SHA2-256f` | Level 5 | ~49KB |
-| `SPHINCS+-SHA2-256s-simple` | `SLH-DSA-SHA2-256s` | Level 5 | ~22KB |
+| `SLH-DSA-SHA2-128f` | `SLH-DSA-SHA2-128f` | Level 1 | ~17KB |
+| `SLH-DSA-SHA2-128s` | `SLH-DSA-SHA2-128s` | Level 1 | ~8KB |
+| `SLH-DSA-SHA2-192f` | `SLH-DSA-SHA2-192f` | Level 3 | ~35KB |
+| `SLH-DSA-SHA2-192s` | `SLH-DSA-SHA2-192s` | Level 3 | ~16KB |
+| `SLH-DSA-SHA2-256f` | `SLH-DSA-SHA2-256f` | Level 5 | ~49KB |
+| `SLH-DSA-SHA2-256s` | `SLH-DSA-SHA2-256s` | Level 5 | ~22KB |
 
 *Plus SHAKE variants for all SPHINCS+ algorithms*
 
@@ -255,7 +255,7 @@ Signs a payload and returns JWT string.
 publisher = create_publisher()
 jwt = publisher.encode(
     payload={"user": "123", "exp": ...},
-    headers={"alg": "Dilithium2", "typ": "JWT"}
+    headers={"alg": "ML-DSA-44", "typ": "JWT"}
 )
 ```
 
@@ -319,14 +319,14 @@ Maps algorithm name to JWT header.
 
 ```python
 header = JWTKeyManager.get_jwt_header_name("ML-DSA-44")
-print(header)  # "Dilithium2"
+print(header)  # "ML-DSA-44"
 ```
 
 #### `get_algorithm_from_jwt_header(jwt_header)`
 Maps JWT header back to algorithm name.
 
 ```python
-algorithm = JWTKeyManager.get_algorithm_from_jwt_header("Dilithium2")
+algorithm = JWTKeyManager.get_algorithm_from_jwt_header("ML-DSA-44")
 print(algorithm)  # "ML-DSA-44"
 ```
 
@@ -376,13 +376,6 @@ except AlgorithmNotSupportedError as e:
 - **Falcon Padded**: Mitigates timing attacks present in basic Falcon variants  
 - **SPHINCS+**: Conservative hash-based security, very large signatures but resistant to lattice attacks
 
-### Key Format Disclaimer
-**Important Note on PEM Format**: Current PEM implementation uses generic headers (`BEGIN PUBLIC KEY`/`BEGIN PRIVATE KEY`) with base64-encoded raw key bytes. Full PKCS#8 (private keys) and SPKI (public keys) ASN.1 encoding is **not yet implemented**. This means:
-- Generated PEM files are **not standards-compliant** with OpenSSL and other PKI tools
-- Keys are stored in a **library-specific format** that only works with this library
-- **Interoperability with external systems is limited**
-
-Full ASN.1 wrapping with proper OIDs and structure is planned for future releases. For now, use this library in self-contained systems or be prepared to handle key conversion for interoperability.
 
 ### Key Protection
 - Store private keys securely with appropriate file permissions
@@ -427,8 +420,8 @@ Keys are automatically named based on algorithm and format:
 | Algorithm | Format | Public Key File | Private Key File |
 |-----------|--------|-----------------|------------------|
 | ML-DSA-44 | pem | `ml-dsa-44_public.pem` | `ml-dsa-44_private.pem` |
-| Falcon-512 | pub | `falcon-512_public.pub` | `falcon-512_private.pem` |
-| SPHINCS+-SHA2-128f-simple | bin | `sphincs+-sha2-128f-simple_public.bin` | `sphincs+-sha2-128f-simple_private.bin` |
+| FN-DSA-512 | pub | `fn-dsa-512.pub` | `fn-dsa-512_private.pem` |
+| SLH-DSA-SHA2-128f | bin | `slh-dsa-sha2-128f_public.bin` | `slh-dsa-sha2-128f_private.bin` |
 
 > Note: Private keys are always stored in PEM format when using PUB format for public keys.
 

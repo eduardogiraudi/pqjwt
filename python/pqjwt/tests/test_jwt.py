@@ -5,8 +5,8 @@ import time
 import tempfile
 import shutil
 import warnings
-from app import JWTManager, JWTKeyManager, create_publisher, create_consumer
-import errors
+from pqjwt.app import JWTManager, JWTKeyManager, create_publisher, create_consumer
+from pqjwt import errors
 
 class TestJWTPostQuantum:
     def setup_method(self):
@@ -22,16 +22,15 @@ class TestJWTPostQuantum:
         assert isinstance(algs, list)
         assert len(algs) > 0
         assert "ML-DSA-44" in algs
-        assert "Falcon-512" in algs
-        assert "SPHINCS+-SHA2-128f-simple" in algs
+        assert "FN-DSA-512" in algs
+        assert "SLH-DSA-SHA2-128f" in algs
 
     def test_jwt_header_mapping(self):
-        assert JWTKeyManager.get_jwt_header_name("ML-DSA-44") == "Dilithium2"
-        assert JWTKeyManager.get_jwt_header_name("Falcon-512") == "Falcon512"
+        assert JWTKeyManager.get_jwt_header_name("ML-DSA-44") == "ML-DSA-44"
+        assert JWTKeyManager.get_jwt_header_name("FN-DSA-512") == "FN-DSA-512"
         
-        # Test reverse mapping
-        assert JWTKeyManager.get_algorithm_from_jwt_header("Dilithium2") == "ML-DSA-44"
-        assert JWTKeyManager.get_algorithm_from_jwt_header("Falcon512") == "Falcon-512"
+        assert JWTKeyManager.get_algorithm_from_jwt_header("ML-DSA-44") == "ML-DSA-44"
+        assert JWTKeyManager.get_algorithm_from_jwt_header("FN-DSA-512") == "FN-DSA-512"
 
     def test_algorithm_not_supported_error(self):
         with pytest.raises(errors.AlgorithmNotSupportedError):
@@ -52,7 +51,7 @@ class TestJWTPostQuantum:
         assert JWTKeyManager._detect_format(pem_file) == "pem"
 
     def test_publisher_key_generation(self):
-        for algorithm in ["ML-DSA-44", "Falcon-512", "SPHINCS+-SHA2-128f-simple"]:
+        for algorithm in ["ML-DSA-44", "FN-DSA-512", "SLH-DSA-SHA2-128f"]:
             publisher = JWTManager(
                 mode="publisher", 
                 key_dir=self.test_keys_dir,
@@ -102,7 +101,7 @@ class TestJWTPostQuantum:
             "exp": int(time.time()) + 3600
         }
         
-        for algorithm in ["ML-DSA-44", "Falcon-512"]:  # Test con algoritmi più veloci
+        for algorithm in ["ML-DSA-44", "FN-DSA-512"]:  
             publisher = create_publisher(
                 key_dir=self.test_keys_dir,
                 algorithm=algorithm
@@ -138,7 +137,7 @@ class TestJWTPostQuantum:
         
         expired_payload = {
             "sub": "user123",
-            "exp": int(time.time()) - 3600  # Scaduto 1 ora fa
+            "exp": int(time.time()) - 3600 
         }
         
         expired_jwt = publisher.encode(expired_payload)
@@ -159,7 +158,7 @@ class TestJWTPostQuantum:
         
         future_payload = {
             "sub": "user123",
-            "nbf": int(time.time()) + 3600,  # Valido tra 1 ora
+            "nbf": int(time.time()) + 3600, 
             "exp": int(time.time()) + 7200
         }
         
@@ -310,7 +309,7 @@ class TestJWTPostQuantum:
             algorithm="ML-DSA-44"
         )
         
-        consumer_same_alg.algorithm = "Falcon-512"
+        consumer_same_alg.algorithm = "FN-DSA-512"
         
         headers, payload = consumer_same_alg.decode(jwt_token)
         assert payload["test"] == "data"
@@ -363,8 +362,8 @@ class TestJWTPostQuantum:
     def test_all_algorithms_compatibility(self):
         test_algorithms = [
             "ML-DSA-44",      # Dilithium2
-            "Falcon-512",     # Falcon512  
-            "SPHINCS+-SHA2-128f-simple"  # Sphincs
+            "FN-DSA-512",     # Falcon512  
+            "SLH-DSA-SHA2-128f"  # Sphincs
         ]
         
         for algorithm in test_algorithms:

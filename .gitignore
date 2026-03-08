@@ -5,7 +5,7 @@ build/
 dist/
 wheels/
 *.egg-info
-
+.npmrc
 # Virtual environments
 .venv
 venv/

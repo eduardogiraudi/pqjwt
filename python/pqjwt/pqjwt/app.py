@@ -25,7 +25,46 @@ from pqcrypto.sign.sphincs_shake_192s_simple import generate_keypair as generate
 from pqcrypto.sign.sphincs_shake_256f_simple import generate_keypair as generate_keypair_sphincs_shake256f, sign as sign_sphincs_shake256f, verify as verify_sphincs_shake256f
 from pqcrypto.sign.sphincs_shake_256s_simple import generate_keypair as generate_keypair_sphincs_shake256s, sign as sign_sphincs_shake256s, verify as verify_sphincs_shake256s
 from . import errors
+from pyasn1.type import univ, namedtype
+from pyasn1.codec.der import encoder
+from pyasn1.codec.der import decoder
+ALGORITHM_OIDS = {
+    'ML-DSA-44': '2.16.840.1.101.3.4.3.17',
+    'ML-DSA-65': '2.16.840.1.101.3.4.3.18',
+    'ML-DSA-87': '2.16.840.1.101.3.4.3.19',
+    'FN-DSA-512': '1.3.9999.3.6',
+    'FN-DSA-1024': '1.3.9999.3.7',
+    'SLH-DSA-SHA2-128s': '2.16.840.1.101.3.4.3.20',
+    'SLH-DSA-SHA2-128f': '2.16.840.1.101.3.4.3.21',
+    'SLH-DSA-SHA2-192s': '2.16.840.1.101.3.4.3.22',
+    'SLH-DSA-SHA2-192f': '2.16.840.1.101.3.4.3.23',
+    'SLH-DSA-SHA2-256s': '2.16.840.1.101.3.4.3.24',
+    'SLH-DSA-SHA2-256f': '2.16.840.1.101.3.4.3.25',
+    'SLH-DSA-SHAKE-128s': '2.16.840.1.101.3.4.3.26',
+    'SLH-DSA-SHAKE-128f': '2.16.840.1.101.3.4.3.27',
+    'SLH-DSA-SHAKE-192s': '2.16.840.1.101.3.4.3.28',
+    'SLH-DSA-SHAKE-192f': '2.16.840.1.101.3.4.3.29',
+    'SLH-DSA-SHAKE-256s': '2.16.840.1.101.3.4.3.30',
+    'SLH-DSA-SHAKE-256f': '2.16.840.1.101.3.4.3.31'
+}
 
+class AlgorithmIdentifier(univ.Sequence):
+    componentType = namedtype.NamedTypes(
+        namedtype.NamedType('id', univ.ObjectIdentifier())
+    )
+
+class SubjectPublicKeyInfo(univ.Sequence):
+    componentType = namedtype.NamedTypes(
+        namedtype.NamedType('algorithm', AlgorithmIdentifier()),
+        namedtype.NamedType('subjectPublicKey', univ.BitString())
+    )
+
+class OneAsymmetricKey(univ.Sequence):
+    componentType = namedtype.NamedTypes(
+        namedtype.NamedType('version', univ.Integer()),
+        namedtype.NamedType('algorithm', AlgorithmIdentifier()),
+        namedtype.NamedType('privateKey', univ.OctetString())
+    )
 
 class JWTKeyManager:
     """
@@ -53,85 +92,85 @@ class JWTKeyManager:
             "verify": verify_87,
             "jwt_header": "ML-DSA-87"
         },
-        "Falcon-512": {
+        "FN-DSA-512": {
             "generate": generate_keypair_falcon512,
             "sign": sign_falcon512,
             "verify": verify_falcon512,
             "jwt_header": "FN-DSA-512",
         },
-        "Falcon-1024": {
+        "FN-DSA-1024": {
             "generate": generate_keypair_falcon1024,
             "sign": sign_falcon1024,
             "verify": verify_falcon1024,
             "jwt_header": "FN-DSA-1024",
         },
-        "SPHINCS+-SHA2-128f-simple": {
+        "SLH-DSA-SHA2-128f": {
             "generate": generate_keypair_sphincs128f,
             "sign": sign_sphincs128f,
             "verify": verify_sphincs128f,
             "jwt_header": "SLH-DSA-SHA2-128f",
         },
-        "SPHINCS+-SHA2-128s-simple": {
+        "SLH-DSA-SHA2-128s": {
             "generate": generate_keypair_sphincs128s,
             "sign": sign_sphincs128s,
             "verify": verify_sphincs128s,
             "jwt_header": "SLH-DSA-SHA2-128s",
         },
-        "SPHINCS+-SHA2-192f-simple": {
+        "SLH-DSA-SHA2-192f": {
             "generate": generate_keypair_sphincs192f,
             "sign": sign_sphincs192f,
             "verify": verify_sphincs192f,
             "jwt_header": "SLH-DSA-SHA2-192f",
         },
-        "SPHINCS+-SHA2-192s-simple": {
+        "SLH-DSA-SHA2-192s": {
             "generate": generate_keypair_sphincs192s,
             "sign": sign_sphincs192s,
             "verify": verify_sphincs192s,
             "jwt_header": "SLH-DSA-SHA2-192s",
         },
-        "SPHINCS+-SHA2-256f-simple": {
+        "SLH-DSA-SHA2-256f": {
             "generate": generate_keypair_sphincs256f,
             "sign": sign_sphincs256f,
             "verify": verify_sphincs256f,
             "jwt_header": "SLH-DSA-SHA2-256f",
         },
-        "SPHINCS+-SHA2-256s-simple": {
+        "SLH-DSA-SHA2-256s": {
             "generate": generate_keypair_sphincs256s,
             "sign": sign_sphincs256s,
             "verify": verify_sphincs256s,
             "jwt_header": "SLH-DSA-SHA2-256s",
         },
-        "SPHINCS+-SHAKE-128f-simple": {
+        "SLH-DSA-SHAKE-128f": {
             "generate": generate_keypair_sphincs_shake128f,
             "sign": sign_sphincs_shake128f,
             "verify": verify_sphincs_shake128f,
             "jwt_header": "SLH-DSA-SHAKE-128f",
         },
-        "SPHINCS+-SHAKE-128s-simple": {
+        "SLH-DSA-SHAKE-128s": {
             "generate": generate_keypair_sphincs_shake128s,
             "sign": sign_sphincs_shake128s,
             "verify": verify_sphincs_shake128s,
             "jwt_header": "SLH-DSA-SHAKE-128s",
         },
-        "SPHINCS+-SHAKE-192f-simple": {
+        "SLH-DSA-SHAKE-192f": {
             "generate": generate_keypair_sphincs_shake192f,
             "sign": sign_sphincs_shake192f,
             "verify": verify_sphincs_shake192f,
             "jwt_header": "SLH-DSA-SHAKE-192f",
         },
-        "SPHINCS+-SHAKE-192s-simple": {
+        "SLH-DSA-SHAKE-192s": {
             "generate": generate_keypair_sphincs_shake192s,
             "sign": sign_sphincs_shake192s,
             "verify": verify_sphincs_shake192s,
             "jwt_header": "SLH-DSA-SHAKE-192s",
         },
-        "SPHINCS+-SHAKE-256f-simple": {
+        "SLH-DSA-SHAKE-256f": {
             "generate": generate_keypair_sphincs_shake256f,
             "sign": sign_sphincs_shake256f,
             "verify": verify_sphincs_shake256f,
             "jwt_header": "SLH-DSA-SHAKE-256f",
         },
-        "SPHINCS+-SHAKE-256s-simple": {
+        "SLH-DSA-SHAKE-256s": {
             "generate": generate_keypair_sphincs_shake256s,
             "sign": sign_sphincs_shake256s,
             "verify": verify_sphincs_shake256s,
@@ -162,15 +201,9 @@ class JWTKeyManager:
     def save_key(key: bytes, file_path: str, format_type: str = "pem", key_type: str = "public", algorithm: str = "ML-DSA-44"):
         if algorithm not in JWTKeyManager.ALGORITHMS:
             raise errors.AlgorithmNotSupportedError(algorithm, list(JWTKeyManager.ALGORITHMS.keys()))
+            
         if format_type == "pem":
-            if key_type == "private":
-                pem_header = "-----BEGIN PRIVATE KEY-----"
-                pem_footer = "-----END PRIVATE KEY-----"
-            else:
-                pem_header = "-----BEGIN PUBLIC KEY-----"
-                pem_footer = "-----END PUBLIC KEY-----"
-            key_b64 = base64.b64encode(key).decode('ascii')
-            pem_content = f"{pem_header}\n{key_b64}\n{pem_footer}"
+            pem_content = JWTKeyManager.bytes_to_pem(key, key_type.upper(), algorithm)
             with open(file_path, "w") as f:
                 f.write(pem_content)
         elif format_type == "pub":
@@ -195,21 +228,34 @@ class JWTKeyManager:
             with open(file_path, "r") as f:
                 content = f.read()
             lines = content.strip().split('\n')
-            if len(lines) < 3:
-                if not any(header in lines[0] for header in ["PRIVATE KEY", "PUBLIC KEY", "ML-DSA"]):
-                     raise errors.KeyFormatError("Invalid or unrecognized PEM format")
-            base64_data = ''.join(lines[1:-1])
-            key_data = base64.b64decode(base64_data)
-            first_line = lines[0]
-            if "PRIVATE" in first_line:
-                if key_type == "auto":
+            
+            # Estrazione base64 classica
+            base64_data = ''.join([line for line in lines if not line.startswith('-----')])
+            der_data = base64.b64decode(base64_data)
+            
+            # DETERMINA SE DECODIFICARE ASN.1
+            # Se hai salvato con OID, devi decodificare la struttura
+            try:
+                if "PRIVATE" in lines[0]:
                     key_type = "private"
-            else: 
-                if key_type == "auto":
+                    # Decodifica PKCS#8
+                    structure, _ = decoder.decode(der_data, asn1Spec=OneAsymmetricKey())
+                    key_data = bytes(structure['privateKey'])
+                else:
                     key_type = "public"
+                    # Decodifica SubjectPublicKeyInfo
+                    structure, _ = decoder.decode(der_data, asn1Spec=SubjectPublicKeyInfo())
+                    # Converte BitString in bytes
+                    key_data = structure['subjectPublicKey'].asOctets()
+            except Exception:
+                # Fallback se il PEM era un semplice base64 senza ASN.1
+                key_data = der_data
+        
+            # Logica per l'algoritmo (opzionale: potresti estrarlo dall'OID ASN.1)
             if detected_algorithm is None:
-                detected_algorithm = algorithm if algorithm != "auto" else "ML-DSA-44" 
-            return key_data, detected_algorithm 
+                detected_algorithm = algorithm if algorithm != "auto" else "ML-DSA-44"
+                
+            return key_data, detected_algorithm
         
         elif format_type == "pub":
             with open(file_path, "r") as f:
@@ -251,18 +297,36 @@ class JWTKeyManager:
     
     @staticmethod
     def bytes_to_pem(key_bytes: bytes, key_type: str = "PUBLIC", algorithm: str = "ML-DSA-44") -> str:
-        if algorithm not in JWTKeyManager.ALGORITHMS:
-            raise errors.AlgorithmNotSupportedError(algorithm, list(JWTKeyManager.ALGORITHMS.keys()))
+            if algorithm not in JWTKeyManager.ALGORITHMS:
+                raise errors.AlgorithmNotSupportedError(algorithm, list(JWTKeyManager.ALGORITHMS.keys()))
             
-        if key_type.upper() == "PUBLIC":
-            pem_header = "-----BEGIN PUBLIC KEY-----"
-            pem_footer = "-----END PUBLIC KEY-----"
-        else:
-            pem_header = "-----BEGIN PRIVATE KEY-----"
-            pem_footer = "-----END PRIVATE KEY-----"
-        key_b64 = base64.b64encode(key_bytes).decode('ascii')
-        return f"{pem_header}\n{key_b64}\n{pem_footer}"
-
+            oid = ALGORITHM_OIDS.get(algorithm)
+            label = "PUBLIC KEY" if key_type.upper() == "PUBLIC" else "PRIVATE KEY"
+    
+            if not oid:
+                # Fallback per algoritmi senza OID: encoding base64 raw
+                key_b64 = base64.b64encode(key_bytes).decode('ascii')
+                # Formattazione a 64 caratteri per riga
+                key_b64_formatted = "\n".join([key_b64[i:i+64] for i in range(0, len(key_b64), 64)])
+                return f"-----BEGIN {label}-----\n{key_b64_formatted}\n-----END {label}-----\n"
+            
+            # Encoding ASN.1 strutturato (PKCS#8 / SPKI)
+            if key_type.upper() == "PUBLIC":
+                spki = SubjectPublicKeyInfo()
+                spki['algorithm']['id'] = oid
+                spki['subjectPublicKey'] = univ.BitString.fromOctetString(key_bytes)
+                der_data = encoder.encode(spki)
+            else:
+                pkcs8 = OneAsymmetricKey()
+                pkcs8['version'] = 0
+                pkcs8['algorithm']['id'] = oid
+                pkcs8['privateKey'] = univ.OctetString(key_bytes)
+                der_data = encoder.encode(pkcs8)
+            
+            b64_text = base64.b64encode(der_data).decode('ascii')
+            key_b64_formatted = "\n".join([b64_text[i:i+64] for i in range(0, len(b64_text), 64)])
+            
+            return f"-----BEGIN {label}-----\n{key_b64_formatted}\n-----END {label}-----\n"
 
 class JWTManager:
     def __init__(self, mode: str = "publisher", key_dir: str = "./keys", 
