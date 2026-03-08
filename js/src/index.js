@@ -19,8 +19,7 @@ export {
     JWTDecodeError
 } from './errors.js';
 
-// Re-export noble algorithms for advanced usage
-export { ml_dsa44, ml_dsa65, ml_dsa87 } from '@noble/post-quantum/ml-dsa.js';
+
 
 // Version
 export const version = '1.0.0';
